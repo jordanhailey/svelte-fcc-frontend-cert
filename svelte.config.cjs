@@ -1,5 +1,6 @@
 const node = require('@sveltejs/adapter-node');
 const pkg = require('./package.json');
+const path = require('path');
 
 /** @type {import('@sveltejs/kit').Config} */
 module.exports = {
@@ -13,6 +14,11 @@ module.exports = {
 		target: '#svelte',
 
 		vite: {
+			resolve: {
+				alias: {
+					$calculator: path.resolve('src/calculator')
+				}
+			},
 			ssr: {
 				noExternal: Object.keys(pkg.dependencies || {})
 			}
