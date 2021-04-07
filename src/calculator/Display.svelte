@@ -4,9 +4,5 @@
 </script>
 
 <div id="display">
-  {#if expression}
-    exp: {expression}
-  {:else}
-    tot: {total}
-  {/if}
+  {expression} | {total}
 </div>
