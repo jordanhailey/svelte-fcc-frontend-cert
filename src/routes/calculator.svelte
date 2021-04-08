@@ -1,8 +1,9 @@
 <script>
 import Buttons from "$calculator/Buttons.svelte";
 import Display from "$calculator/Display.svelte";
+import { FCC_TEST_SUITE } from "$lib/";
 import { onMount } from "svelte";
-let FCC_TEST_SUITE;
+let testLib;
 $: expression = "";
 $: value = "";
 $: total = "";
@@ -15,7 +16,7 @@ $: {
 }
 
 onMount(async ()=>{
-  FCC_TEST_SUITE="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"
+  testLib=FCC_TEST_SUITE
   value = "0"
   const cached = await sessionStorage.getItem("calculator");
   if (cached) {
@@ -176,6 +177,10 @@ function handleValueChange(input){
 }
 </script>
 
+
+<svelte:head>
+  <script src={testLib}></script>
+</svelte:head>
 <main>
   <h1>Calculator</h1>
   <section class="calc-wrapper" id="calculator">
@@ -187,9 +192,6 @@ function handleValueChange(input){
     {JSON.stringify(calculator,null,2)}
   </pre>
 </main>
-<svelte:head>
-  <script src={FCC_TEST_SUITE}></script>
-</svelte:head>
 
 <style>
   main {
