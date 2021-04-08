@@ -2,7 +2,7 @@
   import { createEventDispatcher } from 'svelte';
   export let id;
   export let type;
-  export let value;
+  export let inputValue;
   export let row;
   export let column;
   let style = `--grid-row: ${row}; --grid-column: ${column};`
@@ -11,7 +11,7 @@
 
 	function btnClick() {
 		dispatch('click', {
-			value,
+			inputValue,
       id,
       type
 		});
@@ -25,7 +25,7 @@
   on:click={btnClick}
   tabindex=-1
 >
-{value}
+{inputValue}
 </button>
 
 <style>

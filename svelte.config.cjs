@@ -16,7 +16,7 @@ module.exports = {
 		vite: {
 			resolve: {
 				alias: {
-					$calculator: path.resolve('src/calculator')
+					$calculator: path.resolve('src/lib/calculator')
 				}
 			},
 			ssr: {
