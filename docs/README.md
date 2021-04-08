@@ -8,7 +8,7 @@
 - [ ] Build MVP of each project
   - [x] Calculator
   - [ ] Drum Machine
-  - [ ] Markdown Previewer
+  - [x] Markdown Previewer
   - [ ] Random Quote Generator
   - [ ] Pomodoro Timer
 - [ ] Refactor and polish each project
