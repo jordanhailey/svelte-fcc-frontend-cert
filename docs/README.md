@@ -6,7 +6,7 @@
 - [x] Init with markdown file outlining each project's set of requirements
 - [x] Create routes for each of the projects
 - [ ] Build MVP of each project
-  - [ ] Calculator
+  - [x] Calculator
   - [ ] Drum Machine
   - [ ] Markdown Previewer
   - [ ] Random Quote Generator
