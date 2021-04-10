@@ -4,101 +4,153 @@ import Display from "$lib/pomodoro/Display.svelte";
 import { pomodoro, Pomodoro } from "$lib/stores";
 import { onMount } from "svelte";
 
-let testLib;
-let audioCtx;
-let {timerName,breakName} = $pomodoro;
-let sessionDisplay;
-let breakPeriodDisplay;
-let clearInt;
-$: active = $pomodoro.active;
-$: session = $pomodoro.session;
-$: breakPeriod = $pomodoro.breakPeriod;
+let testLib, sDisplay, bDisplay, dftlSDisplay, dftlBDisplay, clearInt, onBreak;
+let activeTimer = {
+  name:null,
+  timeRemaining:null
+}
 
-function underThree(){beep(100,520,200)}
-function timerFinished(){beep(999,220,300)}
+$: ({
+  isActive,
+  session,
+  breakPeriod,
+  timerName,
+  breakName,
+  defaultSession,
+  defaultBreakPeriod
+} = $pomodoro);
+
 $: {
-  if (session){
-    if (session<=3 && session>=1) {
-      underThree()
-    }
-    if (active && session == 1) setTimeout(()=>{timerFinished()},1000)
-  } else if (breakPeriod){
-    if (breakPeriod<=3 && breakPeriod>=1) {
-      underThree()
-    }
-    if (active && breakPeriod == 1) setTimeout(()=>{timerFinished()},1000)
+  sDisplay = displayMMSSFromS(session,"mmss");
+  bDisplay = displayMMSSFromS(breakPeriod, "mmss");
+  dftlSDisplay = displayMMSSFromS(defaultSession,"mm");
+  dftlBDisplay = displayMMSSFromS(defaultBreakPeriod, "mm");
+}
+
+$:{
+  if (session) {
+    activeTimer.name = timerName;
+    activeTimer.timeRemaining = session;
+  } else if (!onBreak && breakPeriod) {
+    delayActiveTimerSwitch(breakName,breakPeriod)
+  } else if (!session && !breakPeriod){
+    delayActiveTimerSwitch(timerName,session);
   }
 }
 
 $: {
-  if (active) {
-    // Start countdown
+  if (isActive) {
     let interval = setInterval(()=>{
-      pomodoro.update(decrementTimer)
+      countdownTimer();
     },1000)
     clearInt = ()=>{return clearInterval(interval)};
-  } else if (!active && clearInt) {
-    // Stop countdown
+  } else if (!isActive && clearInt) {
     clearInt();
   }
 }
 
-// Show HH:MM:SS
-$:{
-  sessionDisplay = displayHHMMSSFromS(session);
-  breakPeriodDisplay = displayHHMMSSFromS(breakPeriod);
-}
-
-function handleClick(e){
-  const {id} = e.target
-  switch (id) {
-    case "stop":
-      active = false;
-      break;
-    case "reset":
-      // if (e.target.innerText === "reset all") {
-        resetTimersToDefaultState()
-      // }
-      // else resetTimersToDefaultState(new Pomodoro(1500,300,"Pomodoro"))
-      break;
-    default:
-      active = !active;
-      break;
+$: {
+  if (isActive && ((session <= 3 && session > 0) || (!session && breakPeriod <=3 && breakPeriod > 0))){
+    if (session == 1 || (session === 0 && breakPeriod == 1)) setTimeout(()=>{timerFinished()},1000);
+    underThree();
   }
 }
 
-function decrementTimer(state){
-  let updatedState = {active:true}
-  if (session) updatedState.session = session-1;
-  else if (breakPeriod) updatedState.breakPeriod = breakPeriod-1;
-  else updatedState.active = false;
-  return Object.assign(state,updatedState)
+onMount(function initDOM(){
+  testLib = FCC_TEST_SUITE;
+  return ()=>{
+    if (clearInt) clearInt()
+  }
+})
+
+function handleClick(e) {
+  const {id} = e.target;
+  if (id.includes("increment") || id.includes("decrement")) {
+    return handleTimeModification(id);
+  }
+  switch (id) {
+    case "soft-reset":
+      resetTimersToDefaultState();
+      break;
+    case "reset":
+      resetTimersToDefaultState(true);
+      break;
+    default:
+      isActive = !isActive;
+  }
 }
 
-function displayHHMMSSFromS(seconds) {
-  return new Date(seconds * 1000).toISOString().substr(11, 8);
+function curriedStateUpdater(changes){
+  function updateWithCallback(state){
+    return Object.assign(state,changes);
+  }
+  pomodoro.update(updateWithCallback)
 }
 
-function resetTimersToDefaultState(timerObj = new Pomodoro()) {
-  pomodoro.set(timerObj);
+function handleTimeModification(id) {
+  const modSecBy = id.includes("increment") ? 60 : -60;
+  function modTime(sec){
+    const t = sec+modSecBy;
+    return t > 3600 ? 3600 : t <=0 ? 1 : t;
+  };
+  const changes = id.includes("session") ?
+  {session:modTime(session),defaultSession:modTime(defaultSession)} :
+  {breakPeriod:modTime(breakPeriod),defaultBreakPeriod:modTime(defaultBreakPeriod)};
+  return curriedStateUpdater(changes);
+}
+
+function resetTimersToDefaultState(resetAll=false) {
+  onBreak = false;
+  if (resetAll) return curriedStateUpdater(new Pomodoro())
+  const changes = {session:defaultSession,breakPeriod:defaultBreakPeriod};
+  return curriedStateUpdater(changes);
+}
+
+function countdownTimer(){
+  let changes = {isActive:true}
+  if (session) changes.session = session-1;
+  else if (breakPeriod) changes.breakPeriod = breakPeriod-1;
+  else changes.isActive = false;
+  return curriedStateUpdater(changes);
+}
+
+function displayMMSSFromS(seconds,str) {
+  if (seconds === 3600) return "60:00";
+  let start = 14, stop;
+  if (`${str}`.toLowerCase() == "mmss") stop = 5;
+  else if (`${str}`.toLowerCase() == "mm") stop = 2;
+  // Show MM:SS
+  let t = new Date(seconds * 1000).toISOString().substr(start, stop);
+  return Number(t) == Number(t) ? `${Number(t)}` : t
+}
+
+function delayActiveTimerSwitch(n,t){
+  setTimeout(()=>{
+    onBreak=true;
+    activeTimer.name = n;
+    activeTimer.timeRemaining = t;
+  },500)
 }
 
 async function beep(vol, freq, duration){
-  let v = await audioCtx.createOscillator()
-  let u = await audioCtx.createGain()
-  v.connect(u)
-  v.frequency.value=freq
-  v.type="square"
-  u.connect(audioCtx.destination)
-  u.gain.value=vol*0.01
-  v.start(audioCtx.currentTime)
-  v.stop(audioCtx.currentTime+duration*0.001)
+  let audioCtx = new AudioContext();
+  const audioElement = document.querySelector('#beep');
+  async function playAudio(audioEl){
+    var sound = audioCtx.createOscillator(audioEl);
+    let soundMod = await audioCtx.createGain();
+    sound.connect(soundMod);
+    sound.frequency.value=freq;
+    sound.type="square";
+    soundMod.connect(audioCtx.destination);
+    soundMod.gain.value=vol*0.01;
+    sound.start(audioCtx.currentTime);
+    sound.stop(audioCtx.currentTime+duration*0.001);
+  }
+  playAudio(audioElement);
 }
 
-onMount(()=>{
-  testLib = FCC_TEST_SUITE;
-  audioCtx = new AudioContext();
-})
+function underThree(){beep(100,520,200)};
+function timerFinished(){beep(999,220,1200)};
 </script>
 
 <svelte:head>
@@ -106,35 +158,41 @@ onMount(()=>{
 </svelte:head>
 <main>
   <h1>Pomodoro Timer</h1>
-  <div class="displays">
-    <div class="active-timer">{session ? timerName : breakName}</div>
-    <Display label="session" value={sessionDisplay}/>
-    <Display label="break" value={breakPeriodDisplay}/>
+  <div class="timer-controls">
+    <div class="active-timer">
+      <div id="timer-label">{activeTimer.name === timerName ? timerName : breakName}</div>
+      <div id="time-left">{activeTimer.name === timerName ? sDisplay : bDisplay}</div>
+      <button disabled={!session && !breakPeriod} id="start_stop" on:click={handleClick}>{!isActive ? "start" : "stop" }</button>
+      <button id="reset" on:click={handleClick}>full reset</button>
+      <button id="soft-reset" on:click={handleClick}>reset session timer</button>
+      <audio id="beep"><track kind="captions" />This browser does not support the audio element.</audio>
+    </div>
+    <div>
+      <Display label="session" value={dftlSDisplay} on:click={handleClick}/>
+      <Display label="break" value={dftlBDisplay} on:click={handleClick}/>
+    </div>
   </div>
-  {#if $pomodoro}
-  <pre>{JSON.stringify($pomodoro)}</pre>
-  {/if}
-  <button disabled={active} id="run" on:click={handleClick}>start</button>
-  <button disabled={!active} id="stop" on:click={handleClick}>stop</button>
-  <button id="reset" on:click={handleClick}>{session ? "reset" : "reset all"}</button>
-
 </main>
 
 
 <style>
-  main {
+  :global(main) {
     width: 80%;
     margin: 0 auto;
+    font-feature-settings: 'tnum';
+    font-variant-numeric: 'tabular-nums';
+  }
+  .timer-controls,.active-timer {
+    display: flex;
+    align-items: center;
+  }
+  .timer-controls {
+    flex-wrap: wrap;
+    justify-content: space-evenly;
   }
 
   .active-timer {
-    flex: 1 100%;
-    display: flex;
-    justify-content: center;
-  }
-  .displays {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
   }
 </style>

@@ -6,11 +6,13 @@ export class Pomodoro {
     breakPeriod = 300,
     timerName = "Pomodoro"
   ) {
-    this.active = false;
+    this.isActive = false;
     this.session = session;
     this.breakPeriod = breakPeriod;
     this.timerName = timerName;
     this.breakName = `${timerName} break`;
+    this.defaultSession = session;
+    this.defaultBreakPeriod = breakPeriod;
   }
 }
 
