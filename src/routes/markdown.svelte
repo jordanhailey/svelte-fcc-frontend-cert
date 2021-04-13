@@ -54,14 +54,8 @@ onMount(()=>{
 </main>
 
 <style>
-  /* TODO: set global CSS to handle default width and margin */
   main {
-    width: 80vw;
     max-width: 1200px;
-    margin: 0 auto;
-  }
-  h1 {
-    text-align: center;
   }
   main, .md-generator, .editor, .preview {
     height: 95%;

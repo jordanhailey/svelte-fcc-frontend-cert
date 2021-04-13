@@ -12,13 +12,8 @@
 </main>
 
 <style>
-	h1 {
-		text-transform: uppercase;
-		}
-
-	main {
-		max-width: 800px;
-		margin-left: auto;
-		margin-right: auto;
-	}
+	main > h1 {
+	text-transform: uppercase;
+	text-align: unset;
+}
 </style>

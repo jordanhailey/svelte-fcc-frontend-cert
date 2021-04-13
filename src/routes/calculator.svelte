@@ -194,11 +194,6 @@ function handleValueChange(input){
 </main>
 
 <style>
-  main {
-    width: 80vw;
-    max-width: 800px;
-    margin: 0 auto;
-  }
   .calc-wrapper {
     display: grid;
     grid-template-columns: 1fr 10fr 1fr;
