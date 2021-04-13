@@ -9,7 +9,7 @@
   - [x] Calculator
   - [ ] Drum Machine
   - [x] Markdown Previewer
-  - [ ] Random Quote Generator
-  - [ ] Pomodoro Timer
+  - [x] Random Quote Generator
+  - [x] Pomodoro Timer
 - [ ] Refactor and polish each project
 - Publish to FreeCodeCamp
