@@ -2,18 +2,27 @@ import { writable } from "svelte/store";
 
 export class Pomodoro {
   constructor (
-    session = 1500,
-    breakPeriod = 300,
-    timerName = "Pomodoro"
+    sessionDuration = 1500,
+    breakDuration = 300,
+    sessionName = "Pomodoro"
   ) {
     this.isActive = false;
-    this.session = session;
-    this.breakPeriod = breakPeriod;
-    this.timerName = timerName;
-    this.breakName = `${timerName} break`;
-    this.defaultSession = session;
-    this.defaultBreakPeriod = breakPeriod;
+    this.onBreak = false;
+    this.sessionDuration = sessionDuration;
+    this.sessionTimeRemaining = sessionDuration;
+    this.breakDuration = breakDuration;
+    this.breakTimeRemaining = breakDuration;
+    this.sessionName = sessionName;
+    this.breakName = `${sessionName} break`;
   }
 }
 
 export const pomodoro = writable(new Pomodoro());
+
+export function curriedStoreUpdater(store){
+  return function passChangesStoreUpdateMethod(changes){
+    store.update(function createNewStateObject(state){
+      return Object.assign(state,changes);
+    })
+  }
+}

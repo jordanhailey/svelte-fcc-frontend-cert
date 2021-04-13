@@ -1,18 +1,22 @@
 <script>
 export let label;
 export let value;
+export let display;
 
 $: timerLabelID = label + "-label"
 $: timerLengthID = label + "-length"
+
+let isDisabled = value == 0 ? true : false;
+
 </script>
 
 <div class="display">
   <span id={timerLabelID} class="label">{label}</span>
-  <span id={timerLengthID} class="length">{value}</span>
+  <span id={timerLengthID} class="length">{display}</span>
 </div>
 <div class="inputs">
-  <button id="{label}-increment" on:click>+</button>
-  <button id="{label}-decrement" on:click>-</button>
+  <button disabled={isDisabled} id="{label}-increment" on:click>+</button>
+  <button disabled={isDisabled} id="{label}-decrement" on:click>-</button>
 </div>
 
 <style>
