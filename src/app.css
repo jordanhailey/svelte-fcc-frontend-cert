@@ -14,3 +14,16 @@ html, body, #svelte {
 	margin: 0;
 	line-height: 1.4;
 }
+
+main {
+	width: 80vw;
+	max-width: 800px;
+	margin: 0 auto;
+	font-feature-settings: 'tnum';
+	font-variant-numeric: 'tabular-nums';
+}
+
+main > h1 {
+	text-transform: uppercase;
+	text-align: center;
+}
