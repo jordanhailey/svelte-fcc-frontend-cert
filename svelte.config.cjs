@@ -17,8 +17,7 @@ module.exports = {
 					$markdown: path.resolve('src/lib/markdown'),
 					$pomodoro: path.resolve('src/lib/pomodoro'),
 					$quotes: path.resolve('src/lib/quotes'),
-					$drumkit: path.resolve('src/lib/drumkit'),
-					marked: "marked/lib/marked.esm.js",
+					$drumkit: path.resolve('src/lib/drumkit')
 				}
 			},
 			ssr: {

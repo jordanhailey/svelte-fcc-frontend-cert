@@ -1,7 +1,7 @@
 <script>
-import marked from 'marked'
 import { FCC_TEST_SUITE } from "$lib/";
 import { onMount } from "svelte";
+let marked;
 let markdown =
 `# Hello World
 
@@ -31,6 +31,9 @@ function handleFCCTest(){
   console.log({markdown,output});
 }
 
+onMount(async () => {
+  marked = (await import("https://unpkg.com/marked@2.0.3/lib/marked.esm.js")).default
+})
 onMount(()=>{
   testLib = FCC_TEST_SUITE
 })
@@ -46,9 +49,11 @@ onMount(()=>{
     <section class="editor">
       <textarea bind:value={markdown} placeholder="Enter markdown here" id="editor" on:keyup={handleFCCTest}/>
     </section>
+    {#if marked}
     <section class="preview" id="preview">
       {@html marked(markdown,{breaks:true})}
     </section>
+    {/if}
   </section>
 
 </main>

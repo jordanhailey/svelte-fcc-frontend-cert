@@ -20,8 +20,5 @@
 		"svelte": "^3.29.0",
 		"vite": "^2.1.0"
 	},
-	"type": "module",
-	"dependencies": {
-		"marked": "^2.0.1"
-	}
+	"type": "module"
 }
